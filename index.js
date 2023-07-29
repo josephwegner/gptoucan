@@ -1,8 +1,3 @@
-
-const fs = require('node:fs');
-const path = require('node:path');
-const { Configuration, OpenAIApi } = require('openai');
-
 // Check if the environment is "development"
 const isDevelopment = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'staging';
 
@@ -10,6 +5,11 @@ const isDevelopment = process.env.NODE_ENV !== 'production' && process.env.NODE_
 if (isDevelopment) {
   require('dotenv').config();
 }
+
+const fs = require('node:fs');
+const path = require('node:path');
+const { Configuration, OpenAIApi } = require('openai');
+const followup = require('./mentions/followup.js')
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_SECRET_KEY,
@@ -88,36 +88,14 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on(Events.MessageCreate, async message => {
   if (!message.channel.isThread()) return;
   if (!message.mentions.has(message.client.user)) return;
-  console.log('processing message...')
 
-  const allMessages = await message.channel.messages.fetch()
-  let chats = []
-  allMessages.reverse().forEach(message => {
-    if(message.author.equals(message.client.user) && !message.system) {
-      chats.push({
-        role: 'assistant',
-        content: message.content
-      })
-    } else if(message.mentions.has(message.client.user)) {
-      chats.push({
-        role: 'user',
-        content: message.content.replace(`<@${message.client.user.id}>`, '')
-      })
-    }
-  })
-
-  const chatCompletion = await openai.createChatCompletion({
-    model: "gpt-4",
-    messages: chats,
-  });
-
-  message.channel.send(chatCompletion.data.choices[0].message)
+  followup(message);
 })
 
 // When the client is ready, run this code (only once)
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
 client.once(Events.ClientReady, c => {
-	console.log(`Ready! Logged in as ${c.user.tag}`);
+	console.log(`Chat Client Ready! Logged in as ${c.user.tag}`);
 });
 
 // Log in to Discord with your client's token

@@ -1,14 +1,9 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { Configuration, OpenAIApi } = require('openai');
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_SECRET_KEY,
-});
-const openai = new OpenAIApi(configuration);
+const gpt = require('../lib/gpt.js')
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('gpt')
+		.setName(process.env.NODE_ENV === 'development' ? 'devtoucan' : 'gpt')
 		.setDescription('Sends a prompt to GPT4')
     .addStringOption(option =>
 			option
@@ -27,31 +22,25 @@ module.exports = {
     
     thread.send(`The prompt was: \`\`\`${interaction.options.getString('prompt')}\`\`\``)
 
-    const chatCompletion = await openai.createChatCompletion({
-      model: "gpt-4",
-      messages: [{role: "user", content: interaction.options.getString('prompt') }],
-    });
+    const chatCompletion = await gpt.chat([{role: "user", content: interaction.options.getString('prompt') }])
 
     thread.send(chatCompletion.data.choices[0].message)
 
     try {
-      const response = await openai.createChatCompletion({
-        model: "gpt-4",
-        messages: [
-          {
-            role: 'system',
-            content: 'Provide a short few-word title for the following chat interaction. Do not wrap your response in quotes.'
-          },
-          {
-            role: 'user',
-            content: interaction.options.getString('prompt'),
-          },
-          {
-            role: 'assistant',
-            content: chatCompletion.data.choices[0].message.toString()
-          }
-        ]
-      });
+      const response = await gpt.chat([
+        {
+          role: 'system',
+          content: 'Provide a short few-word title for the following chat interaction. Do not wrap your response in quotes.'
+        },
+        {
+          role: 'user',
+          content: interaction.options.getString('prompt'),
+        },
+        {
+          role: 'assistant',
+          content: chatCompletion.data.choices[0].message.toString()
+        }
+      ])
 
       console.log(response.data.choices[0].message)
 
