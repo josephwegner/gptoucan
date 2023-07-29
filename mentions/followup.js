@@ -14,13 +14,12 @@ function parseChat(messages) {
     if(message.author.equals(message.client.user) && !message.system) {
       chats.push({
         role: 'assistant',
-        content: message.content
+        content: 'Assistant: ' + message.content
       })
     } else if(message.mentions.has(message.client.user)) {
       chats.push({
         role: 'user',
-        content: message.content.replace(`<@${message.client.user.id}>`, ''),
-        name: message.author.username
+        content: message.author.username + ': ' + message.content.replace(`<@${message.client.user.id}>`, '')
       })
     }
   })
