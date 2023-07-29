@@ -1,0 +1,26 @@
+{
+  "name": "gptoucan",
+  "version": "1.0.0",
+  "description": "GPT4 in Discord",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josephwegner/gptoucan.git"
+  },
+  "author": "Joe Wegner (dev@joewegner.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/josephwegner/gptoucan/issues"
+  },
+  "homepage": "https://github.com/josephwegner/gptoucan#readme",
+  "dependencies": {
+    "discord.js": "^14.11.0",
+    "openai": "^3.3.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.3.1"
+  }
+}
