@@ -22,9 +22,9 @@ function parseChat(messages) {
         content: message.content.replace(`<@${message.client.user.id}>`, ''),
         name: message.author.username
       })
-      console.log(message.author.username)
     }
   })
 
+  console.log(chats)
   return chats
 }
