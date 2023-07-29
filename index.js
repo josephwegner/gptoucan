@@ -64,7 +64,6 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 })();
 
 client.on(Events.InteractionCreate, async interaction => {
-  console.log('interaction', Interaction)
 	if (!interaction.isChatInputCommand()) return;
 
 	const command = interaction.client.commands.get(interaction.commandName);
@@ -106,8 +105,6 @@ client.on(Events.MessageCreate, async message => {
       })
     }
   })
-
-  console.log(chats)
 
   const chatCompletion = await openai.createChatCompletion({
     model: "gpt-4",
