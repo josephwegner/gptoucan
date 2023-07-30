@@ -6,6 +6,9 @@ module.exports = async function(message) {
   const threadPromise = message.startThread({
     name: 'Toucan Chat',
     authArchiveDuration: 60
+  }).then(thread => {
+    thread.sendTyping()
+    return thread
   })
 
   const cleanContent = message.cleanContent.replace(`@${message.client.user.username}`, 'Great Proud Toucan')

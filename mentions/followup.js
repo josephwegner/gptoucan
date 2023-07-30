@@ -2,6 +2,7 @@ const gpt = require('../lib/gpt.js')
 const { getNickname } = require('../lib/util.js')
 
 module.exports = async (message) => {
+  message.channel.sendTyping()
   const allMessagesPromise = message.channel.messages.fetch()
   const firstMessagePromise = message.channel.fetchStarterMessage()
   const allMessages = await Promise.all([allMessagesPromise, firstMessagePromise]).then(function([messages, firstMessage]) {
