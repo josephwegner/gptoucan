@@ -27,6 +27,7 @@ const client = new Client({ intents: [
 ]});
 
 client.on(Events.MessageCreate, async message => {
+  if (message.author.equals(message.client.user)) return;
   if (!message.mentions.has(message.client.user)) return;
   if (message.channel.isThread()) {
     if (message.client.user.id === message.channel.ownerId) {

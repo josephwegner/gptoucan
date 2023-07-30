@@ -7,7 +7,8 @@ module.exports = async function(message) {
     authArchiveDuration: 60
   })
 
-  const chatCompletionPromise = gpt.chat([{role: "user", content: message.content }])
+  const cleanContent = message.cleanContent.replace(`@${message.client.user.username}`, 'Great Proud Toucan')
+  const chatCompletionPromise = gpt.chat([{role: "user", content: `${message.author.username}: ${cleanContent}` }])
 
   const [thread, chatCompletion] = await Promise.all([threadPromise, chatCompletionPromise])
 
@@ -21,11 +22,11 @@ module.exports = async function(message) {
       },
       {
         role: 'user',
-        content: message.content,
+        content: cleanContent,
       },
       {
         role: 'assistant',
-        content: chatCompletion.data.choices[0].message.toString()
+        content: chatCompletion.data.choices[0].message.content
       }
     ], { max_tokens: 10 })
 
