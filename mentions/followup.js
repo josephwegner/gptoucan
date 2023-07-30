@@ -24,6 +24,5 @@ function parseChat(messages) {
     }
   })
 
-  console.log(chats)
   return chats
 }
