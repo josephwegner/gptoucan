@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const gpt = require('../lib/gpt.js')
+const { getNickname } = require('../lib/util.js')
 
 module.exports = async function(message) {
   const threadPromise = message.startThread({
@@ -8,7 +9,8 @@ module.exports = async function(message) {
   })
 
   const cleanContent = message.cleanContent.replace(`@${message.client.user.username}`, 'Great Proud Toucan')
-  const chatCompletionPromise = gpt.chat([{role: "user", content: `${message.author.username}: ${cleanContent}` }])
+  const nick = await getNickname(message.guild, message.author)
+  const chatCompletionPromise = gpt.chat([{role: "user", content: `${nick}: ${cleanContent}` }])
 
   const [thread, chatCompletion] = await Promise.all([threadPromise, chatCompletionPromise])
 
