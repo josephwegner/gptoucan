@@ -13,7 +13,7 @@ module.exports = async (message) => {
 
   const history = await parseChat(allMessages.reverse())
   const chatCompletion = await gpt.chat(history)
-  message.channel.send(chatCompletion.data.choices[0].message)
+  message.channel.send(chatCompletion.content)
 }
 
 async function parseChat(messages) {

@@ -11,6 +11,7 @@ const path = require('node:path');
 const { Configuration, OpenAIApi } = require('openai');
 const followup = require('./mentions/followup.js')
 const newChat = require('./mentions/newChat.js')
+const search = require('./functions/search.js')
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_SECRET_KEY,

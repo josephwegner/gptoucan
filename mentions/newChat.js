@@ -17,7 +17,7 @@ module.exports = async function(message) {
 
   const [thread, chatCompletion] = await Promise.all([threadPromise, chatCompletionPromise])
 
-  thread.send(chatCompletion.data.choices[0].message)
+  thread.send(chatCompletion.content)
 
   try {
     const response = await gpt.chat([
@@ -31,11 +31,11 @@ module.exports = async function(message) {
       },
       {
         role: 'assistant',
-        content: chatCompletion.data.choices[0].message.content
+        content: chatCompletion.content
       }
     ], { max_tokens: 10 })
 
-    thread.edit({ name: response.data.choices[0].message.content });
+    thread.edit({ name: response.content });
   } catch (error) {
     if (error.response) {
       console.log(error.response.status);
