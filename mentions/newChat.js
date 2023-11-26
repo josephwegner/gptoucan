@@ -1,6 +1,10 @@
 const { SlashCommandBuilder } = require('discord.js');
 const gpt = require('../lib/gpt.js')
 const { getNickname } = require('../lib/util.js')
+const {  MessageAttachment } = require('discord.js');
+const stream = require('stream');
+const util = require('util');
+const pipeline = util.promisify(stream.pipeline);
 
 module.exports = async function(message) {
   const threadPromise = message.startThread({
@@ -32,7 +36,7 @@ module.exports = async function(message) {
     const [thread, chatMessages] = await Promise.all([threadPromise, messagesPromise])
     let sentTID = false
     chatMessages.forEach(chatMessage => {
-      chatMessage.content.forEach(content => {
+      chatMessage.content.forEach(async (content) => {
         switch (content.type) {
           case 'text':
             if (sentTID) {
@@ -48,9 +52,18 @@ module.exports = async function(message) {
             })
             break
     
-          case 'image':
-            thread.send('We got an image response, but I dunno wtf to do about that. Check the logs')
-            console.log(JSON.stringify(content))
+          case 'image_file':
+            const image = await gpt.getFile(content.image_file.file_id)
+            const passThrough = new stream.PassThrough();
+            image.body.pipe(passThrough);
+
+            // Send the image in a Discord message
+            thread.send({
+              files: [{
+                attachment: passThrough,
+                name: 'image.png'
+              }]
+            });
             break
     
           default:
