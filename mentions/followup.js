@@ -1,6 +1,7 @@
 const { start } = require('repl')
 const gpt = require('../lib/gpt.js')
 const { getNickname } = require('../lib/util.js')
+const discord = require('../lib/discord.js')
 
 module.exports = async (message) => {
   message.channel.sendTyping()
@@ -28,29 +29,8 @@ module.exports = async (message) => {
   }
 
   try {
-    chatMessages.forEach(chatMessage => {
-      chatMessage.content.forEach(content => {
-        switch (content.type) {
-          case 'text':
-            message.channel.send(content.text.value)
-            break
-    
-          case 'image':
-            message.channel.send('We got an image response, but I dunno wtf to do about that. Check the logs')
-            console.log(JSON.stringify(content))
-            break
-    
-          default:
-            message.channel.send('Unexpected response. Check the logs')
-            console.log(content.type, JSON.stringify(content))
-            break
-        }
-      })
-    })
+    await discord.postChatResponse(message.channel, chatMessages)
   } catch(e) {
     console.log('error', e, e.stack)
-    threadPromise.then(thread => {
-      thread.send('Error interacting with the GPT. See logs')
-    })
   }
 }

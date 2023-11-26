@@ -1,10 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const gpt = require('../lib/gpt.js')
 const { getNickname } = require('../lib/util.js')
-const {  MessageAttachment } = require('discord.js');
-const stream = require('stream');
-const util = require('util');
-const pipeline = util.promisify(stream.pipeline);
+const discord = require('../lib/discord.js')
 
 module.exports = async function(message) {
   const threadPromise = message.startThread({
@@ -21,7 +18,7 @@ module.exports = async function(message) {
   let messagesPromise
   messagesPromise = gpt.startThread(`${nick}: ${cleanContent}`)
 
-  let titleMessages = [
+  const titleMessages = [
     {
       role: 'system',
       content: 'Provide a short few-word title for the following chat interaction. Do not wrap the title in quotes.'
@@ -34,59 +31,10 @@ module.exports = async function(message) {
 
   try {
     const [thread, chatMessages] = await Promise.all([threadPromise, messagesPromise])
-    let sentTID = false
-    chatMessages.forEach(chatMessage => {
-      chatMessage.content.forEach(async (content) => {
-        switch (content.type) {
-          case 'text':
-            if (sentTID) {
-              thread.send(content.text.value)
-            } else {
-              thread.send(`||TID-${chatMessage.thread_id}||\n\n${content.text.value}`)
-              sentTID = true
-            }
-
-            titleMessages.push({
-              role: 'assistant',
-              content: content.text.value
-            })
-            break
-    
-          case 'image_file':
-            const image = await gpt.getFile(content.image_file.file_id)
-            const passThrough = new stream.PassThrough();
-            image.body.pipe(passThrough);
-
-            // Send the image in a Discord message
-            thread.send({
-              files: [{
-                attachment: passThrough,
-                name: 'image.png'
-              }]
-            });
-            break
-    
-          default:
-            thread.send('Unexpected response. Check the logs')
-            console.log(content.type, JSON.stringify(content))
-            break
-        }
-      })
+    gpt.chat(titleMessages, message, { max_tokens: 10 }).then(response => {
+      thread.edit({ name: response.content })
     })
-  
-    try {
-      gpt.chat(titleMessages, message, { max_tokens: 10 }).then(response => {
-        console.log(response.content)
-        thread.edit({ name: response.content })
-      })
-    } catch (error) {
-      if (error.response) {
-        console.log(error.response.status);
-        console.log(error.response.data);
-      } else {
-        console.log(error.message);
-      }
-    }
+    await discord.postChatResponse(thread, chatMessages, true)
   } catch(e) {
     console.log('error', e, e.stack)
     threadPromise.then(thread => {
