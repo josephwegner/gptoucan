@@ -6,17 +6,8 @@ if (isDevelopment) {
   require('dotenv').config();
 }
 
-const fs = require('node:fs');
-const path = require('node:path');
-const { Configuration, OpenAIApi } = require('openai');
 const followup = require('./mentions/followup.js')
 const newChat = require('./mentions/newChat.js')
-const search = require('./functions/search.js')
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_SECRET_KEY,
-});
-const openai = new OpenAIApi(configuration);
 
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 
@@ -46,7 +37,21 @@ client.on(Events.MessageCreate, async message => {
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
 client.once(Events.ClientReady, c => {
 	console.log(`Chat Client Ready! Logged in as ${c.user.tag}`);
+  doTest(c)
 });
 
 // Log in to Discord with your client's token
 client.login(process.env.DISCORD_TOKEN);
+
+async function doTest(client) {
+  // Toggle this boolean to `true` to run a test in dev environments
+  if (false && process.env.NODE_ENV === 'development') {
+    const guilds = await client.guilds.fetch()
+    const wegnerds = await guilds.first().fetch()
+    const channel = await wegnerds.channels.fetch('473509880406474752')
+    const thread = await channel.threads.fetch('1178306222248710175')
+    const messages = await thread.messages.fetch()
+
+    console.log(messages)
+  }
+}
