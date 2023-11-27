@@ -22,6 +22,7 @@ module.exports = {
       prompt: args.prompt
     })
     
+    console.log(image)
     return image.data[0].url
   }
 }
