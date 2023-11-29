@@ -46,12 +46,13 @@ client.login(process.env.DISCORD_TOKEN);
 async function doTest(client) {
   // Toggle this boolean to `true` to run a test in dev environments
   if (false && process.env.NODE_ENV === 'development') {
-    const guilds = await client.guilds.fetch()
-    const wegnerds = await guilds.first().fetch()
-    const channel = await wegnerds.channels.fetch('473509880406474752')
-    const thread = await channel.threads.fetch('1178306222248710175')
-    const messages = await thread.messages.fetch()
+    const edit = require('./functions/dalle-edit.js')
+    const image = await edit.execute({
+      "prompt": "a toucan",
+      "source": "file-ZRROLmgJRAUaph3WXGpTa4CY",
+      "type": "openai"
+    })
 
-    console.log(messages)
+    console.log(image)
   }
 }

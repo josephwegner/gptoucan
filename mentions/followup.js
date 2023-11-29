@@ -1,6 +1,5 @@
 const { start } = require('repl')
 const gpt = require('../lib/gpt.js')
-const { getNickname } = require('../lib/util.js')
 const discord = require('../lib/discord.js')
 
 module.exports = async (message) => {
@@ -15,13 +14,13 @@ module.exports = async (message) => {
     return
   }
 
+  console.log(message)
+
   const threadId = (/\|\|TID-(thread_[A-Za-z0-9]+)\|\|\n\n/gm).exec(starterMessage.content)[1]
 
-  const cleanContent = message.cleanContent.replace(`@${message.client.user.username}`, 'Great Proud Toucan')
-  const nick = await getNickname(message.guild, message.author)
   let chatMessages
   try {
-    chatMessages = await gpt.addToThread(threadId, `${nick}: ${cleanContent}`)
+    chatMessages = await gpt.addToThread(threadId, await discord.formatMessageForGPT(message))
   } catch (e) {
     console.log('error', e, e.stack)
     message.channel.send(e.message)
